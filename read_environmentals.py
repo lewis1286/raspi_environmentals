@@ -22,6 +22,9 @@ import time
 import os
 import datetime
 
+FROM = os.environ['PUSH_FROM_PATH']
+TO = os.environ['PUSH_TO_PATH']
+
 sense = SenseHat()
 
 def mpl():
@@ -89,7 +92,7 @@ def mpl():
 # main loop
 while True:
     all_data = []     # do 2 hours per file, one reading every 10 seconds
-    for _ in range(720):
+    for _ in range(60):
 
         t = sense.get_temperature() # degrees C
         p = sense.get_pressure() # millibar
@@ -111,6 +114,6 @@ while True:
         all_data.append(data)
         time.sleep(10)
     filename = str(time.time()).split('.')[0] + '_data.p'
-    pickle.dump(all_data, open('data/' + filename, 'wb'))
-    os.system('scp -i /home/pi/lewis-key-pair-oregon-wp.pem /home/pi/environmentals/data/' + filename + ' ubuntu@54.68.40.151:/home/ubuntu/environmentals/data/')
+    pickle.dump(all_data, open('/home/pi/data/' + filename, 'wb'))
+    os.system(FROM + filename + TO)
 
