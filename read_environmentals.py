@@ -22,8 +22,11 @@ import time
 import os
 import datetime
 
-FROM = os.environ['PUSH_FROM_PATH']
-TO = os.environ['PUSH_TO_PATH']
+# get calls to write files to ec2 instance:
+with open('/home/pi/pemcalls') as f:
+    FROM, TO = f.readlines()
+    FROM = FROM.split('\n')[0]
+    TO = TO.split('\n')[0]
 
 sense = SenseHat()
 
