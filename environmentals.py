@@ -9,6 +9,7 @@ from bokeh.models import Legend, Range1d
 import os
 from os import listdir
 import sqlite3
+from datetime import datetime, timedelta
 # test text
 # --------------  Extract  -----------------------
 def get_data():
@@ -43,11 +44,17 @@ def get_data():
     df['mplPressure'] = df['mplPressure'].astype('float')
     df['Timestamp'] = pd.to_datetime(df['Timestamp'])
     df = df.sort_values('Timestamp', ascending=True)
+
+    # resample to 10 min intervals
+    df.index = df['Timestamp']
+    df = df.resample('5T').mean()
+    df.reset_index(inplace=True)
     source = ColumnDataSource(df)
     return source
 
 ds_source = get_data()
 # ----------   Plotting   -----------------
+X_RANGE = (datetime.now() - timedelta(days=5), datetime.now())
 WIDTH=800
 HEIGHT=200
 TOOLS = 'pan,box_zoom,wheel_zoom,reset,save'
@@ -57,7 +64,7 @@ FIG_ARGS = dict(
         plot_height=HEIGHT,
         background_fill_color='#ECE4B7',
         tools=TOOLS,
-        toolbar_location='above'
+        toolbar_location='above',
         )
 # Temperature
 CIRCLE_ARGS=dict(
@@ -72,6 +79,7 @@ LINE_ARGS=dict(
             line_dash='4 4'
         )
 temp = figure(title='Temperature (F)',
+        x_range=X_RANGE,
             **FIG_ARGS)
 shTemp = temp.circle('Timestamp',
                    'shTemp',
